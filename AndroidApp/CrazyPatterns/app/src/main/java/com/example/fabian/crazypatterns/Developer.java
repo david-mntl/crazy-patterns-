@@ -1,6 +1,5 @@
 package com.example.fabian.crazypatterns;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -13,14 +12,17 @@ import cn.pedant.SweetAlert.*;
 public class Developer extends ActionBarActivity {
 
     Thread pThread;
-    SocketClient channel;
+    AsyncSocket pchannel;
+    boolean listening = false;
     String pIP = "";
     int pPort = 0;
+    String currentReceiveData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_developer);
+
 
         final Button connectButton = (Button) findViewById(R.id.bConnect);
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +53,8 @@ public class Developer extends ActionBarActivity {
                         portText.setEnabled(false);
                         pIP = newIP;
                         pPort = newPort;
-                        new SocketAsync().execute("init");
+                        pchannel = new AsyncSocket();
+                        pchannel.execute("init");
                         msgText.requestFocus();
                     }
                 }
@@ -64,10 +67,9 @@ public class Developer extends ActionBarActivity {
         final Button resetButton = (Button) findViewById(R.id.bReset);
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(channel != null) {
+                if (pchannel != null) {
                     resetConnection();
-                }
-                else{
+                } else {
                     new SweetAlertDialog(Developer.this, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Error")
                             .setContentText("No connection to reset")
@@ -79,13 +81,19 @@ public class Developer extends ActionBarActivity {
         final Button sendButton = (Button) findViewById(R.id.bSend);
         sendButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(channel != null) {
-                    EditText msgText = (EditText)findViewById(R.id.input_text);
+                if (pchannel != null) {
+                    EditText msgText = (EditText) findViewById(R.id.input_text);
+                    EditText consoleTxt = (EditText) findViewById(R.id.console_text);
+
                     String sendTxt = msgText.getText().toString();
-                    channel.sendMessage(sendTxt);
+
+                    pchannel.sendMessage(sendTxt);
+                    String local = pchannel.getMessage();
+
                     msgText.setText("");
+                    consoleTxt.setText(consoleTxt.getText().toString() + '\n' + local);
                 }
-                else{
+                else {
                     new SweetAlertDialog(Developer.this, SweetAlertDialog.ERROR_TYPE)
                             .setTitleText("Error")
                             .setContentText("No connection. Can't send message")
@@ -96,29 +104,32 @@ public class Developer extends ActionBarActivity {
     }
 
     private void resetConnection(){
-        channel.closeConnection();
+        listening = false;
+        pchannel.sendMessage("exit");
         EditText ipText = (EditText)findViewById(R.id.ip_text);
         EditText portText = (EditText)findViewById(R.id.port_text);
+        EditText consoleText = (EditText)findViewById(R.id.console_text);
         ipText.setEnabled(true);
         portText.setEnabled(true);
+        consoleText.setText("");
     }
 
-    private class SocketAsync extends AsyncTask<String, Void, String> {
+    private class AsyncSocket extends AsyncTask<String, Void, String> {
 
-        ProgressDialog dialog ;
+        //ProgressDialog dialog ;
+        SocketClient channel;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            dialog = ProgressDialog.show(Developer.this, null, "Inicializando...");
+            //dialog = ProgressDialog.show(Developer.this, null, "Inicializando...");
         }
 
         @Override
         protected String doInBackground(String... params) {
-
             try {
-                pThread = new Thread(channel = new SocketClient(pIP,pPort));
-                channel.run();
+                pThread = new Thread(channel = new SocketClient(pIP, pPort));
+                //channel.run();
             } catch (Exception e) {
                 Log.e("Socket", "Error in Connecting: " + e.toString());
             }
@@ -128,7 +139,25 @@ public class Developer extends ActionBarActivity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            dialog.dismiss();
+            //dialog.dismiss();
+        }
+
+        String getMessage(){
+            new Thread(new Runnable() {
+                public void run() {
+                    try {
+                        currentReceiveData = channel.getMessage();
+                    }
+                    catch (Exception e) {
+                        currentReceiveData = e.toString();
+                    }
+                }
+            }).start();
+            return currentReceiveData;
+        }
+
+        void sendMessage(String msg){
+            channel.sendMessage(msg);
         }
     }
 }
