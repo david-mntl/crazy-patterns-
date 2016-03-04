@@ -34,12 +34,24 @@ def loadXMLParameters():
 
     load_DEBUG=pDebug[0].attributes['value'].value
     PUERTO=int(pPuerto[0].attributes['value'].value)
-    NUSUARIOS = pDebug[0].attributes['value'].value
+    NUSUARIOS = 0
 
     if(load_DEBUG == "true"):   #Se define vDEBUG
         DEBUG = True
     else:
         DEBUG = False
+
+
+
+'''--------------------------------------------------------------------------
+                        Escribir XML
+ ----------------------------------------------------------------------------'''
+def escribir():
+    print("k")
+
+
+
+
 
 '''--------------------------------------------------------------------------
                     Configuracion inicial del socket servidor
@@ -52,7 +64,7 @@ def setupServer():
             print("PUERTO: "+str(PUERTO))
         server.bind(('', PUERTO))
         server.listen(5)
-        listen()
+
     except:
         print("Failed to create socket")
 
@@ -92,7 +104,7 @@ def handleClient(conn,addr):
         data = data.split('\n')
         try:
             if(data[0] != ""):
-                if(data[0] == "exit" & DEBUG):
+                if(data[0] == "exit" and DEBUG):
                     print("usuario desconectado")
                     conn.close()
                     break
@@ -104,9 +116,9 @@ def handleClient(conn,addr):
             pass
     NUSUARIOS-=1
 
-#loadXMLParameters()
-#setupServer()
-
+loadXMLParameters()
+setupServer()
+listen()
 
 
 
