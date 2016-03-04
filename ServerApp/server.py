@@ -2,14 +2,11 @@ import socket
 from threading import Thread
 import threading
 import os
-import serial
 
-global init,userCount,arduino
-puerto = 9696
+global init,userCount
+puerto = 4546
 init = False
 userCount = 0
-arduino = serial.Serial('/dev/ttyAMA0',9600)
-
 def setupServer():
     global server,init
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,21 +23,21 @@ def listen():
     if(init == True):
         print("- Server Initialized -")
     while True:
+        print("Waiting...")
         conn, addr = server.accept()
         userCount+=1
         print("**User Connected**" + " User:"+str(userCount))
         b= Thread(target=handleClient, args=(conn,addr))
-        b.setDaemon(True)
         b.start()
-        b.join()
+        #b.join()
         if(userCount == 0):
             break
-    server.shutdown(2)
     server.close()
-    
     print("- Server Closed -")
+
 def handleClient(conn,addr):
-    global userCount,arduino
+    global userCount
+    #conn.send("*Connected*\n")
     while True:
         data = conn.recv(1024)
         data = data.decode("utf-8")
@@ -48,12 +45,14 @@ def handleClient(conn,addr):
         try:
             if(data[0] != ""):
                 if(data[0] == "exit"):
-                    print("**User disconnected**")
                     break
-                print(data[0])
-                arduino.write(data[0])
+                message = "Received: " + data[0] + '\n'
+                conn.send(message)
+                print("mensaje recibido: "+data[0])
+
         except:
             pass
     userCount-=1
+
 setupServer()
 listen()
