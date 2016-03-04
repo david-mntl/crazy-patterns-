@@ -1,0 +1,5 @@
+<root>
+	<DEBUG value="true" />
+    <PUERTO value="4444" />
+    <NUSUARIOS value="0"/>
+</root>
