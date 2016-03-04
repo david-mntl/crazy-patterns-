@@ -1,4 +1,4 @@
 <root>
-	<DEBUG value="true" />
+	<DEBUG value="false" />
     <PUERTO value="4573" />
 </root>
