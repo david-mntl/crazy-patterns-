@@ -6,10 +6,13 @@ Abraham
  ----------------------------------------------------------------------------'''
 import socket
 from threading import Thread
-from xml.dom import minidom
 import os
 import serial
 import time
+from xml.dom import minidom
+
+import simplejson
+import json
 
 '''--------------------------------------------------------------------------
                     Variables globales
@@ -19,7 +22,7 @@ global arduinoSerial, NUSUARIOS, DEBUG, PUERTO, PUERTOSERIAL, HOST
 
 
 '''--------------------------------------------------------------------------
-                    Configuracion de XML
+                    Configuracion de XML y Json
  ----------------------------------------------------------------------------'''
 def loadXMLParameters():
     global DEBUG,PUERTO, NUSUARIOS, PUERTOSERIAL
@@ -43,15 +46,23 @@ def loadXMLParameters():
     else:
         DEBUG = False
 
-    rutaArchivo=str(ruta)+"/partidas.xml"
-    xmlPartidas = minidom.parse(rutaArchivo)
-    if xmlPartidas.hasAttribute("partidas"):
-        print "Root element : %s" % xmlPartidas.getAttribute("shelf")
+    n="a"
+    s="b"
+    x="c"
+    y="d"
+    print(put("partidas.json","a","b","c","d"))
+    get("partidas.json")
 
-def escribirXML(pData):
-    print("kkkkk")
 
+def put(filename, n,s,x,y):
+        with open(filename, "a") as outfile:json.dump({'numbers':n, 'strings':s, 'x':x, 'y':y}, outfile, indent=4, skipkeys=True, sort_keys=True)
 
+def get(filename):
+    returndata = {}
+    with open(filename) as data_file:returndata = json.load(filename)
+    # Hm.  this returns unicode keys...
+    #returndata = simplejson.loads(text)
+    return returndata
 
 '''--------------------------------------------------------------------------
                     Configuracion inicial del socket servidor
@@ -155,8 +166,9 @@ def handleClient(conn,addr):
     NUSUARIOS-=1
 
 loadXMLParameters()
-iniControladorSerial()
-
+#iniControladorSerial()
+#setupServer()
+#listen()
 
 
 
