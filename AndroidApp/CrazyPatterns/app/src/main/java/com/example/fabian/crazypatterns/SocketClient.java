@@ -42,24 +42,32 @@ public class SocketClient implements Runnable {
             mBufferOut.flush();
         }
     }
-
     public String getMessage(){
+        try{
+            String line = mBufferIn.readLine();
+            return line;
+        }
+        catch(IOException e){
+            return e.getMessage().toString();
+        }
+    }
+    /*public String getMessage(){
         try {
-            /*String line;
+            String line;
             while (true) {
                 line = mBufferIn.readLine();
                 if(line != null) {
                     currentline = line;
                     break;
                 }
-            }*/
+            }
             currentline = mBufferIn.readLine();
         } catch (IOException e) {
             currentline = e.toString();
 
         }
         return currentline;
-    }
+    }*/
 
     public void closeConnection(){
         try {

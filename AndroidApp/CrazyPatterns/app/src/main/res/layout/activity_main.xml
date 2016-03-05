@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:background="#744141">
+            android:background="#191a42">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -26,7 +26,6 @@
                 android:id="@+id/titletxt"
                 android:textColor="#ffffff"
                 android:textSize="50dp"
-                android:layout_marginTop="201dp"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true" />
 
@@ -39,6 +38,65 @@
                 android:textSize="50dp"
                 android:layout_below="@+id/titletxt"
                 android:layout_centerHorizontal="true" />
+
+            <GridLayout
+                android:layout_width="210dp"
+                android:layout_height="210dp"
+                android:layout_marginTop="90dp"
+                android:background="#373b63"
+                android:layout_below="@+id/textView5"
+                android:layout_centerHorizontal="true">
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/createButton"
+                    android:layout_row="0"
+                    android:layout_column="0"
+                    android:background="@drawable/crear" />
+
+                <Space
+                    android:layout_width="20px"
+                    android:layout_height="20px"
+                    android:layout_row="0"
+                    android:layout_column="1" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/playButton"
+                    android:layout_row="0"
+                    android:layout_column="3"
+                    android:background="@drawable/jugar" />
+
+                <Space
+                    android:layout_width="20px"
+                    android:layout_height="20px"
+                    android:layout_row="1"
+                    android:layout_column="0" />
+
+                <Space
+                    android:layout_width="20px"
+                    android:layout_height="20px"
+                    android:layout_row="1"
+                    android:layout_column="3" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/statsButton"
+                    android:layout_row="2"
+                    android:layout_column="0"
+                    android:background="@drawable/stats" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/profileButton"
+                    android:layout_row="2"
+                    android:layout_column="3"
+                    android:background="@drawable/profile" />
+            </GridLayout>
         </RelativeLayout>
     </FrameLayout>
 
