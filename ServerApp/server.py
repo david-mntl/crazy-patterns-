@@ -50,19 +50,16 @@ def loadXMLParameters():
     s="b"
     x="c"
     y="d"
-    print(put("partidas.json","a","b","c","d"))
-    get("partidas.json")
+   # print(put("partidas.json","a","b","c","d"))
+    print(get("partidas.json"))
 
 
-def put(filename, n,s,x,y):
+def putJson(filename, n,s,x,y):
         with open(filename, "a") as outfile:json.dump({'numbers':n, 'strings':s, 'x':x, 'y':y}, outfile, indent=4, skipkeys=True, sort_keys=True)
 
-def get(filename):
-    returndata = {}
-    with open(filename) as data_file:returndata = json.load(filename)
-    # Hm.  this returns unicode keys...
-    #returndata = simplejson.loads(text)
-    return returndata
+def getJson(filename):
+    with open(filename) as json_file:data = json.load(json_file)
+    return data
 
 '''--------------------------------------------------------------------------
                     Configuracion inicial del socket servidor
