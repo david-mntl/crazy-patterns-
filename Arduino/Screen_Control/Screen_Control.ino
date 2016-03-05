@@ -18,10 +18,10 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM);
 const char* numbers[12] = {"1","2","3","<","4","5","6",">","7","8","9","0"};
 const char* letters[27] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
 const char* letvis[12] = {"ABC","DEF","GHI","<","JKL","MNO","PQR",">","STU","VWX","YZ"};
-const char* PORT[6] = {"_","_","_","_","_","_"};
-const char* HOST[8] = {"_","_","_","_","_","_","_","_"};
-byte PORT_IND = 0;
-byte HOST_IND = 0;
+const char* PORT[6] = {"9","0","9","0","_","_"}; //puerto host
+const char* HOST[8] = {"F","A","B","_","_","_","_","_"};
+byte PORT_IND = 3;    //
+byte HOST_IND = 2;
 byte LETT_IND = 0;
 byte configParam = 0;
 byte keyMode = 0;
@@ -30,28 +30,30 @@ byte screen = 0;
 
 void setup(){
     Serial.begin(9600);
-    Tft.TFTinit();
-    pinMode(2,OUTPUT);
-    welcomeScreen();
+    Tft.TFTinit();      //ini biblioteca que controla la pantalla
+    pinMode(2,OUTPUT);  //sonido buzzer
+    welcomeScreen();    //pantalla inicial
 }
+
 void loop(){
   Point p = ts.getPoint();                    //Obtener punto presionado
   p.x = map(p.x, TS_MINX, TS_MAXX, 0, 240);   //Map Px al tamaño de pantalla
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, 320);   //Map Py al tamaño de pantalla
   if (p.z > __PRESURE) {                      //Si la presión a la pantalla es minima
     //Tecla Back en cualquier pantalla
-    if(screen!=0 && ((p.x >= 175 && p.x <= 235)&&(p.y >=275 && p.y <=315))){ 
+    if(screen!=0 && ((p.x >= 175 && p.x <= 235)&&(p.y >=275 && p.y <=315))){       //identificar botones
       screen=0;
       configParam=0;
       beep(50);
       welcomeScreen();
     }
     else{
-      if(screen == 0){
+      if(screen == 0){                                                  //pantalla inicial = 0
         if((p.x >= 5 && p.x <= 78)&&(p.y >=240 && p.y <=290)){
           screen=1;
           beep(50);
           playScreen();
+          playScreenLogic();
         }
         else if((p.x >= 83 && p.x <= 156)&&(p.y >=240 && p.y <=290)){
           screen=2;
@@ -70,6 +72,7 @@ void loop(){
     }
   }
 }
+
 void manageInputsAtScreens(int x, int y){
   if(screen == 1){     //PLAY SCREEN
     
@@ -119,7 +122,7 @@ void welcomeScreen(){
   Tft.fillScreen(0, 240, 0, 320,BLACK);
   Tft.drawString((char*)"Crazy",10,20,2,RED);
   Tft.drawString((char*)"Patterns",50,50,3,WHITE);
-  Tft.drawString((char*)"Version 1.0",1,305,1,WHITE);
+  Tft.drawString((char*)"Version 1.1",1,305,1,WHITE);
   Tft.fillRectangle(5, 240, 73,50,RED);
   Tft.fillRectangle(83, 240, 73,50,GREEN);
   Tft.fillRectangle(161, 240, 73,50,BLUE);
@@ -131,7 +134,9 @@ void playScreen(){
   Tft.fillScreen(0, 240, 0, 320,BLACK);
   Tft.fillRectangle(175, 275, 60,40,RED);
   Tft.drawString((char*)"Back",182,288,2,WHITE);
+  Tft.drawString((char*)"Juego",70,80,3,WHITE);
 }
+
 void configScreen(){
   Tft.fillScreen(0, 240, 0, 320,BLACK);
   Tft.fillRectangle(175, 275, 60,40,RED);
@@ -150,7 +155,7 @@ void aboutScreen(){
   Tft.drawString((char*)"Crazy",10,20,2,RED);
   Tft.drawString((char*)"Patterns",50,50,3,WHITE);
   Tft.drawString((char*)"Developers:",5,78,1,BLUE);
-  Tft.drawString((char*)"Abraham Arias",5,90,2,WHITE);
+  Tft.drawString((char*)"Abrahamon Arias",5,90,2,WHITE);
   Tft.drawString((char*)"David Monestel",5,110,2,WHITE);
   Tft.drawString((char*)"Fabian Solano",5,130,2,WHITE);
   Tft.drawString((char*)"Lenin Torres",5,150,2,WHITE);
@@ -223,7 +228,7 @@ void manageKeyBoardPress(int x,int y){
             goto EndB;
           }
           else{
-            Serial.println(((LETT_IND)+3*z)-3*j);
+            //Serial.println(((LETT_IND)+3*z)-3*j);
             if(LETT_IND<2){
               HOST[HOST_IND]=letters[((LETT_IND)+3*z)-3*j];
               LETT_IND++;
@@ -261,6 +266,45 @@ void drawPortAndHost(){
     }
   }
 }
+
+//***********************************
+//          Logica
+//***********************************
+void playScreenLogic(){
+  Serial.println("startx");
+  delay(10);
+  byte portSize=0;
+  byte hostSize=0;
+  
+  for(int i=0;i<6;i++){
+    if(PORT[i]!= "_"){
+      portSize++;
+    }
+  }
+  for(int i=0;i<8;i++){
+    if(HOST[i]!= "_"){
+      hostSize++;
+    }
+  }
+  
+  Serial.println(portSize);
+  delay(10);
+  Serial.println(hostSize);
+  delay(10);
+  
+  for(int i=0;i<portSize;i++){
+    Serial.println(PORT[i]);
+    delay(10);
+  }
+  delay(10);
+  for(int i=0;i<hostSize;i++){
+    Serial.println(HOST[i]);
+    delay(10);
+  }
+}
+
+
+
 //***********************************
 //MISCELANEUS METHODS
 //***********************************
