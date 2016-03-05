@@ -1,4 +1,5 @@
 <root>
-	<DEBUG value="false" />
-    <PUERTO value="4573" />
+	<DEBUG value="true" />
+    <PUERTO value="4559" />
+    <PUERTOSERIAL value="/dev/ttyACM5"/>
 </root>

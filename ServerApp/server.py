@@ -6,15 +6,15 @@ Abraham
  ----------------------------------------------------------------------------'''
 import socket
 from threading import Thread
-from twisted.protocols.dict import parseParam
 from xml.dom import minidom
 import os
-
+import serial
+import time
 
 '''--------------------------------------------------------------------------
                     Variables globales
  ----------------------------------------------------------------------------'''
-global NUSUARIOS, DEBUG, PUERTO
+global arduinoSerial, NUSUARIOS, DEBUG, PUERTO, PUERTOSERIAL, HOST
 
 
 
@@ -22,17 +22,19 @@ global NUSUARIOS, DEBUG, PUERTO
                     Configuracion de XML
  ----------------------------------------------------------------------------'''
 def loadXMLParameters():
-    global DEBUG,PUERTO, NUSUARIOS
+    global DEBUG,PUERTO, NUSUARIOS, PUERTOSERIAL
     ruta=os.getcwd()
     rutaFinal=str(ruta)+"/configs.xml"
-    xmlDoc = minidom.parse(rutaFinal)
+    xmlDocParametrosIni = minidom.parse(rutaFinal)
 
 
-    pDebug = xmlDoc.getElementsByTagName('DEBUG')
-    pPuerto = xmlDoc.getElementsByTagName('PUERTO')
-    pNusuarios = xmlDoc.getElementsByTagName('NUSUARIOS')
+    pDebug = xmlDocParametrosIni.getElementsByTagName('DEBUG')
+    pPuerto = xmlDocParametrosIni.getElementsByTagName('PUERTO')
+    pNusuarios = xmlDocParametrosIni.getElementsByTagName('NUSUARIOS')
+    pPuertoSerial = xmlDocParametrosIni.getElementsByTagName('PUERTOSERIAL')
 
     load_DEBUG=pDebug[0].attributes['value'].value
+    PUERTOSERIAL = str(pPuertoSerial[0].attributes['value'].value)
     PUERTO=int(pPuerto[0].attributes['value'].value)
     NUSUARIOS = 0
 
@@ -41,13 +43,53 @@ def loadXMLParameters():
     else:
         DEBUG = False
 
+    rutaArchivo=str(ruta)+"/partidas.xml"
+    xmlPartidas = minidom.parse(rutaArchivo)
+    if xmlPartidas.hasAttribute("partidas"):
+        print "Root element : %s" % xmlPartidas.getAttribute("shelf")
+
+def escribirXML(pData):
+    print("kkkkk")
+
 
 
 '''--------------------------------------------------------------------------
-                        Escribir XML
+                    Configuracion inicial del socket servidor
  ----------------------------------------------------------------------------'''
-def escribir():
-    print("kkkkk")
+def iniControladorSerial():
+    global PUERTO, PUERTOSERIAL, arduinoSerial, HOST
+    arduinoSerial = serial.Serial("/dev/ttyACM5", 9600)
+    print("Inicializando")
+    while(True):
+        txt= arduinoSerial.readline()
+        txt=txt.split('\n')
+        if(txt[0]== "startx\r"):
+            portSize =  int(arduinoSerial.readline());
+            hostSize = int(arduinoSerial.readline());
+
+            puerto = ""
+            host = ""
+            for i in range(0,portSize):
+                x=arduinoSerial.readline()
+                x=x.split('\n')
+                x=x[0].split('\r')
+                puerto+=x[0]
+            for i in range(0,hostSize):
+                z=arduinoSerial.readline()
+                z=z.split('\n')
+                z=z[0].split('\r')
+                host+=z[0]
+            print("PUERTO FINAL: " + puerto)
+            print("HOST FINAL: " + host)
+            #setupServer()
+            #listen()
+            break
+        time.sleep(0.1)
+
+def enviarPorSerial(pData):
+    global arduinoSerial
+    arduinoSerial.write("ENVIO :D")
+    print("ok")
 
 
 '''--------------------------------------------------------------------------
@@ -61,7 +103,6 @@ def setupServer():
             print("PUERTO: "+str(PUERTO))
         server.bind(('', PUERTO))
         server.listen(5)
-
     except:
         print("Failed to create socket")
 
@@ -114,8 +155,8 @@ def handleClient(conn,addr):
     NUSUARIOS-=1
 
 loadXMLParameters()
-setupServer()
-listen()
+iniControladorSerial()
+
 
 
 
