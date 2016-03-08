@@ -10,4 +10,148 @@
     tools:context="com.example.fabian.crazypatterns.crearActivity"
     android:background="#4d52e1">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RegEx Builder"
+        android:id="@+id/textView4"
+        android:textSize="28dp"
+        android:textIsSelectable="false"
+        android:textColor="#000000"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="10dp" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/imageView"
+        android:background="@drawable/build"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textView4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="12dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_below="@+id/imageView"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="0dp"
+            android:background="#696de1"
+            android:layout_marginBottom="5dp"
+            android:layout_row="0"
+            android:layout_column="0">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Insert RegEx game name:"
+                android:id="@+id/instruc1"
+                android:textSize="22dp"
+                android:textColor="#000000"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp" />
+
+            <EditText
+                android:layout_width="250dp"
+                android:layout_height="40dp"
+                android:id="@+id/gameName_txt"
+                android:background="#ffffff"
+                android:gravity="top"
+                android:singleLine="true"
+                android:textSize="20dp"
+                android:layout_below="@+id/instruc1"
+                android:layout_alignLeft="@+id/instruc1"
+                android:layout_alignStart="@+id/instruc1"
+                android:layout_marginTop="5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progress..."
+                android:id="@+id/textView6"
+                android:textColor="#000000"
+                android:layout_marginTop="19dp"
+                android:layout_below="@+id/gameName_txt"
+                android:layout_alignLeft="@+id/gameName_txt"
+                android:layout_alignStart="@+id/gameName_txt" />
+
+            <GridLayout
+                android:layout_width="130dp"
+                android:layout_height="35dp"
+                android:layout_below="@+id/textView6"
+                android:layout_centerHorizontal="true">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/step1"
+                    android:layout_row="0"
+                    android:layout_column="0"
+                    android:checked="false"
+                    android:clickable="false" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/step2"
+                    android:clickable="false" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/step3"
+                    android:clickable="false" />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/step4"
+                    android:clickable="false" />
+            </GridLayout>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_row="1"
+            android:layout_column="0">
+
+            <ImageButton
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:id="@+id/prevButton"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/leftarrow" />
+
+            <Space
+                android:layout_width="185dp"
+                android:layout_height="10dp" />
+
+            <ImageButton
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:id="@+id/nextButton"
+                android:layout_alignTop="@+id/prevButton"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/rightarrow" />
+        </LinearLayout>
+    </GridLayout>
+
 </RelativeLayout>
