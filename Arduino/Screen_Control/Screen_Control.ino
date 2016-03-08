@@ -347,6 +347,22 @@ boolean verifyHostAndPort(){
 //***********************************
 //          Logica
 //***********************************
+void playConnection(){
+  String received = "";
+  while(true){
+    if (Serial.available() > 0) {
+        Tft.fillScreen(50,190,110,185,BLACK);
+        received = Serial.readString();
+        if(received == "exit"){
+          break;
+        }
+        else{
+          showMessage("Message",received.c_str(),"","","",GREEN);
+        }
+    }
+    delay(50);
+  }
+}
 void initPlayConnection(){
   Tft.fillCircle(228,16,7,RED); //No Connection Available
   Serial.println("startx");
@@ -417,6 +433,7 @@ void verifyConnection(){
   showMessage("-Warning-","Connection timeout","Server did not respond","Could not connected","Error 203",1211910);
   END:
     Tft.fillScreen(1,155,28,56,BLACK);
+    playConnection(); //INICIAR CONEXION, ES DECIR MODO JUEGO (ACTUALMENTE SOLO SE IMPRIMEN MSGS)
   
 }
 
