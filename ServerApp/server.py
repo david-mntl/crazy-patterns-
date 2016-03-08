@@ -46,13 +46,6 @@ def loadXMLParameters():
     else:
         DEBUG = False
 
-    n="a"
-    s="b"
-    x="c"
-    y="d"
-   # print(put("partidas.json","a","b","c","d"))
-    print(get("partidas.json"))
-
 
 def putJson(filename, n,s,x,y):
         with open(filename, "a") as outfile:json.dump({'numbers':n, 'strings':s, 'x':x, 'y':y}, outfile, indent=4, skipkeys=True, sort_keys=True)
