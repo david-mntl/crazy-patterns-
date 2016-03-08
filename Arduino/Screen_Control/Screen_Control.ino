@@ -2,11 +2,14 @@
 #include <TFTv2.h>
 #include <SPI.h>
 #include <TouchScreen.h> 
+#include <Adafruit_NeoPixel.h>
 
 #define YP A2
 #define XM A1
 #define YM 14
 #define XP 17
+#define PIXELPIN 3
+#define NUMPIXELS 5
 
 #define TS_MINX 116*2
 #define TS_MAXX 890*2
@@ -14,13 +17,14 @@
 #define TS_MAXY 913*2
 
 TouchScreen ts = TouchScreen(XP, YP, XM, YM);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIXELPIN, NEO_GRB + NEO_KHZ800);
 
 const char* numbers[12] = {"1","2","3","<","4","5","6",">","7","8","9","0"};
 const char* letters[27] = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"};
 const char* letvis[12] = {"ABC","DEF","GHI","<","JKL","MNO","PQR",">","STU","VWX","YZ"};
 const char* PORT[6] = {"9","0","9","0","_","_"}; //puerto host
 const char* HOST[8] = {"F","A","B","_","_","_","_","_"};
-byte PORT_IND = 3;    //
+byte PORT_IND = 4;    //
 byte HOST_IND = 2;
 byte LETT_IND = 0;
 byte configParam = 0;
@@ -32,7 +36,11 @@ void setup(){
     Serial.begin(9600);
     Tft.TFTinit();      //ini biblioteca que controla la pantalla
     pinMode(2,OUTPUT);  //sonido buzzer
+    pixels.begin();
+    pixels.setBrightness(45);
+    pixels.show();
     welcomeScreen();    //pantalla inicial
+    welcomeLightShow();
 }
 
 void loop(){
@@ -50,10 +58,15 @@ void loop(){
     else{
       if(screen == 0){                                                  //pantalla inicial = 0
         if((p.x >= 5 && p.x <= 78)&&(p.y >=240 && p.y <=290)){
-          screen=1;
           beep(50);
-          playScreen();
-          playScreenLogic();
+          if(verifyHostAndPort()==true){
+            screen=1;
+            playScreen();
+            initPlayConnection();
+          }
+          else{
+           showMessage("-Warning-","Host or Port, are null","or invalid","Check and try again","Error 101",RED); 
+          }
         }
         else if((p.x >= 83 && p.x <= 156)&&(p.y >=240 && p.y <=290)){
           screen=2;
@@ -64,6 +77,9 @@ void loop(){
           screen=3;
           beep(50);
           aboutScreen();
+        }
+        else if((p.x >= 220 && p.x <= 230)&&(p.y >=5 && p.y <=15)){
+          welcomeLightShow();
         }
       }
       else{
@@ -121,6 +137,7 @@ void manageInputsAtScreens(int x, int y){
 void welcomeScreen(){
   Tft.fillScreen(0, 240, 0, 320,BLACK);
   Tft.drawString((char*)"Crazy",10,20,2,RED);
+  Tft.drawString((char*)"?",220,5,2,YELLOW);
   Tft.drawString((char*)"Patterns",50,50,3,WHITE);
   Tft.drawString((char*)"Version 1.1",1,305,1,WHITE);
   Tft.fillRectangle(5, 240, 73,50,RED);
@@ -134,7 +151,7 @@ void playScreen(){
   Tft.fillScreen(0, 240, 0, 320,BLACK);
   Tft.fillRectangle(175, 275, 60,40,RED);
   Tft.drawString((char*)"Back",182,288,2,WHITE);
-  Tft.drawString((char*)"Juego",70,80,3,WHITE);
+  Tft.drawString((char*)"Game",5,5,3,WHITE);
 }
 
 void configScreen(){
@@ -160,6 +177,7 @@ void aboutScreen(){
   Tft.drawString((char*)"Fabian Solano",5,130,2,WHITE);
   Tft.drawString((char*)"Lenin Torres",5,150,2,WHITE);
 }
+
 void drawKeyboard(byte mode){
   Tft.fillScreen(0, 170, 168, 320,BLACK);
   drawPortAndHost();
@@ -266,11 +284,22 @@ void drawPortAndHost(){
     }
   }
 }
-
+boolean verifyHostAndPort(){
+  if(PORT[0] == "_"){
+    return false;
+  }
+  else if(HOST[0] == "_"){
+    return false; 
+  }
+  else{
+   return true; 
+  }
+}
 //***********************************
 //          Logica
 //***********************************
-void playScreenLogic(){
+void initPlayConnection(){
+  Tft.fillCircle(228,16,7,RED); //No Connection Available
   Serial.println("startx");
   delay(10);
   byte portSize=0;
@@ -301,6 +330,45 @@ void playScreenLogic(){
     Serial.println(HOST[i]);
     delay(10);
   }
+  delay(20);
+  verifyConnection();
+}
+void verifyConnection(){
+  String received;
+  byte i = 20;
+  byte k = 0;
+  Tft.drawString("Connecting",6,35,2,WHITE);
+  while(i>0){
+    if (Serial.available() > 0) {
+      // read the incoming byte
+      received = Serial.readString();
+      if(received == "ok"){
+        Tft.fillCircle(228,16,7,GREEN);
+        //showMessage("Connected","","","","",GREEN);
+        goto END;
+      }
+      else if(received == "failed"){
+        Tft.fillCircle(228,16,7,RED);
+        showMessage("Error","Can't Connect","Server initialization failed","Socket not available","Error 201",YELLOW);
+        goto END;
+      }
+    }
+    if(k<3){
+      k++;
+      Tft.drawString(".",125+(k*7),35,2,WHITE);
+    }
+    else{
+      Tft.fillScreen(128,155,35,55,BLACK);
+      k=0;
+    }
+    delay(500);
+    i--;
+  }
+  Tft.fillScreen(1,155,28,56,BLACK);
+  showMessage("-Warning-","Connection timeout","Server did not respond","Could not connected","Error 202",1211910);
+  END:
+    Tft.fillScreen(1,155,28,56,BLACK);
+  
 }
 
 
@@ -314,4 +382,45 @@ void beep(byte ms){
   digitalWrite(2,LOW);
   delay(ms);
 }
-
+void welcomeLightShow(){
+  for(int i=0;i<3;i++){
+    pixels.setPixelColor(i-1, pixels.Color(0,0,0));
+    pixels.setPixelColor(5-(i), pixels.Color(0,0,0));
+    pixels.show();
+    pixels.setPixelColor(i, pixels.Color(0,150,0));
+    pixels.setPixelColor(5-(i+1), pixels.Color(0,150,0));
+    pixels.show();  
+    beep(50);
+    delay(200);
+  }
+  for(int i=3;i>0;i--){
+    pixels.setPixelColor(i-1, pixels.Color(0,0,150));
+    pixels.setPixelColor(5-(i), pixels.Color(0,0,150));
+    pixels.show();
+    beep(25);
+    delay(125);
+    pixels.setPixelColor(i-1, pixels.Color(0,0,0));
+    pixels.setPixelColor(5-(i), pixels.Color(0,0,0));
+    pixels.show();  
+  }
+  for(int i=0;i<NUMPIXELS;i++){
+    pixels.setPixelColor(i, pixels.Color(150,0,0));
+    pixels.show();
+    beep(20);
+    delay(85);
+    
+  }
+  for(int i=0;i<NUMPIXELS;i++){
+    pixels.setPixelColor(i, pixels.Color(0,0,0));
+    pixels.show();
+  }
+}
+void showMessage(const char* title,const char* line1,const char* line2,const char* line3,const char* error,unsigned int color){
+  
+  Tft.fillRectangle(50, 110, 140,75,WHITE);
+  Tft.drawString((char*)title,55,115,2,color);
+  Tft.drawString((char*)line1,55,135,1,BLACK);
+  Tft.drawString((char*)line2,55,145,1,BLACK);
+  Tft.drawString((char*)line3,55,160,1,BLACK);
+  Tft.drawString((char*)error,134,177,1,color);
+}
