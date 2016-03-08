@@ -29,7 +29,7 @@ byte HOST_IND = 2;
 byte LETT_IND = 0;
 byte configParam = 0;
 byte keyMode = 0;
-byte screen = 0;
+byte screen = 8;
 
 
 void setup(){
@@ -39,8 +39,9 @@ void setup(){
     pixels.begin();
     pixels.setBrightness(45);
     pixels.show();
-    welcomeScreen();    //pantalla inicial
-    welcomeLightShow();
+    waitScreen();
+    //welcomeScreen();    //pantalla inicial
+    //welcomeLightShow();
 }
 
 void loop(){
@@ -49,7 +50,7 @@ void loop(){
   p.y = map(p.y, TS_MINY, TS_MAXY, 0, 320);   //Map Py al tamaño de pantalla
   if (p.z > __PRESURE) {                      //Si la presión a la pantalla es minima
     //Tecla Back en cualquier pantalla
-    if(screen!=0 && ((p.x >= 175 && p.x <= 235)&&(p.y >=275 && p.y <=315))){       //identificar botones
+    if((screen!=0 && screen!=8) && ((p.x >= 175 && p.x <= 235)&&(p.y >=275 && p.y <=315))){       //identificar botones
       screen=0;
       configParam=0;
       beep(50);
@@ -133,6 +134,54 @@ void manageInputsAtScreens(int x, int y){
   else if(screen == 3){//ABOUT SCREEN
     
   }
+}
+void waitScreen(){
+  Tft.fillScreen(0, 240, 0, 320,BLACK);
+  Tft.drawString((char*)"Initializing",13,100,3,GREEN);
+  String received="";
+  byte k = 0;
+  byte noerror = 0;
+  while(true){
+    if (Serial.available() > 0) {
+      // read the incoming byte
+      received = Serial.readString();
+      if(received == "init"){
+        break;
+      }
+      else if(received == "nonet"){
+        showMessageBottom("-Error-","Could not set up server","No Internet Connection","Check and try again","Error 201",RED);
+        Tft.fillRectangle(80,295,75,20,RED);
+        Tft.drawString((char*)"Retry",87,297,2,WHITE);
+        noerror = 1;
+        while(true){
+          Point p = ts.getPoint();
+          p.x = map(p.x, TS_MINX, TS_MAXX, 0, 240);
+          p.y = map(p.y, TS_MINY, TS_MAXY, 0, 320);
+          if((p.x >= 80 && p.x <= 155)&&(p.y >=295 && p.y <=315)){
+            beep(50);
+            noerror = 0;
+            Tft.fillScreen(0,240,175,320,BLACK);
+            break;
+          }
+          delay(50);
+        }
+      }
+    }
+    if(noerror == 0){
+      if(k<3){
+        k++;
+        Tft.drawString(".",95+(k*10),135,3,GREEN);
+      }
+      else{
+        Tft.fillScreen(91,160,135,165,BLACK);
+        k=0;
+      }
+    }
+    delay(500);
+  }
+  screen=0;
+  welcomeScreen();    //pantalla inicial
+  welcomeLightShow();
 }
 void welcomeScreen(){
   Tft.fillScreen(0, 240, 0, 320,BLACK);
@@ -349,7 +398,7 @@ void verifyConnection(){
       }
       else if(received == "failed"){
         Tft.fillCircle(228,16,7,RED);
-        showMessage("Error","Can't Connect","Server initialization failed","Socket not available","Error 201",YELLOW);
+        showMessage("Error","Can't Connect","Server initialization failed","Socket not available","Error 202",YELLOW);
         goto END;
       }
     }
@@ -365,7 +414,7 @@ void verifyConnection(){
     i--;
   }
   Tft.fillScreen(1,155,28,56,BLACK);
-  showMessage("-Warning-","Connection timeout","Server did not respond","Could not connected","Error 202",1211910);
+  showMessage("-Warning-","Connection timeout","Server did not respond","Could not connected","Error 203",1211910);
   END:
     Tft.fillScreen(1,155,28,56,BLACK);
   
@@ -416,11 +465,18 @@ void welcomeLightShow(){
   }
 }
 void showMessage(const char* title,const char* line1,const char* line2,const char* line3,const char* error,unsigned int color){
-  
   Tft.fillRectangle(50, 110, 140,75,WHITE);
   Tft.drawString((char*)title,55,115,2,color);
   Tft.drawString((char*)line1,55,135,1,BLACK);
   Tft.drawString((char*)line2,55,145,1,BLACK);
   Tft.drawString((char*)line3,55,160,1,BLACK);
   Tft.drawString((char*)error,134,177,1,color);
+}
+void showMessageBottom(const char* title,const char* line1,const char* line2,const char* line3,const char* error,unsigned int color){
+  Tft.fillRectangle(50, 210, 142,78,WHITE);
+  Tft.drawString((char*)title,55,215,2,color);
+  Tft.drawString((char*)line1,55,235,1,BLACK);
+  Tft.drawString((char*)line2,55,245,1,BLACK);
+  Tft.drawString((char*)line3,55,260,1,BLACK);
+  Tft.drawString((char*)error,134,277,1,color);
 }
