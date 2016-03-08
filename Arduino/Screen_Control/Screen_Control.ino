@@ -348,7 +348,18 @@ boolean verifyHostAndPort(){
 //          Logica
 //***********************************
 void playConnection(){
+  String hostIP = "";
+  while(true){
+    if (Serial.available() > 0) {
+      hostIP = Serial.readString();
+      break;
+    }
+    delay(10);
+  }
+  
   String received = "";
+  Tft.drawString((char*)"HostIP: ",1,40,1,WHITE);
+  Tft.drawString((char*)hostIP.c_str(),45,35,2,WHITE);
   while(true){
     if (Serial.available() > 0) {
         Tft.fillScreen(50,190,110,185,BLACK);
@@ -402,6 +413,7 @@ void verifyConnection(){
   String received;
   byte i = 20;
   byte k = 0;
+  byte outstatus = 0;
   Tft.drawString("Connecting",6,35,2,WHITE);
   while(i>0){
     if (Serial.available() > 0) {
@@ -409,18 +421,19 @@ void verifyConnection(){
       received = Serial.readString();
       if(received == "ok"){
         Tft.fillCircle(228,16,7,GREEN);
-        //showMessage("Connected","","","","",GREEN);
+        Tft.fillScreen(1,155,28,56,BLACK);
+        playConnection();
         goto END;
       }
       else if(received == "failed"){
         Tft.fillCircle(228,16,7,RED);
-        showMessage("Error","Can't Connect","Server initialization failed","Socket not available","Error 202",YELLOW);
-        goto END;
+        outstatus = 1;
+        break;
       }
     }
     if(k<3){
       k++;
-      Tft.drawString(".",125+(k*7),35,2,WHITE);
+      Tft.drawString((char*)".",125+(k*7),35,2,WHITE);
     }
     else{
       Tft.fillScreen(128,155,35,55,BLACK);
@@ -429,12 +442,16 @@ void verifyConnection(){
     delay(500);
     i--;
   }
-  Tft.fillScreen(1,155,28,56,BLACK);
-  showMessage("-Warning-","Connection timeout","Server did not respond","Could not connected","Error 203",1211910);
-  END:
+  if(outstatus == 0){
     Tft.fillScreen(1,155,28,56,BLACK);
-    playConnection(); //INICIAR CONEXION, ES DECIR MODO JUEGO (ACTUALMENTE SOLO SE IMPRIMEN MSGS)
-  
+    showMessage("-Warning-","Connection timeout","Server did not respond","Could not connected","Error 203",1211910);
+  }
+  else if(outstatus == 1){
+    Tft.fillScreen(1,155,28,56,BLACK);
+    showMessage("Error","Can't Connect","Server initialization failed","Socket not available","Error 202",YELLOW);
+  }
+  END:
+    return;
 }
 
 
