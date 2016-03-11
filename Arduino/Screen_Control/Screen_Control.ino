@@ -368,7 +368,7 @@ void playConnection(){
           break;
         }
         else{
-          showMessage("Message",received.c_str(),"","","",GREEN);
+          showMessage("Partidas",received.c_str(),"","","",GREEN);
         }
     }
     delay(50);

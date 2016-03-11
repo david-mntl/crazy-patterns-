@@ -5,32 +5,31 @@ David
 Abraham
  ----------------------------------------------------------------------------'''
 import socket
+from _ast import arguments
 from threading import Thread
 import os
 import serial
 import time
+import datetime
 from xml.dom import minidom
-
-<<<<<<< HEAD
-=======
 import internetChecker as ichecker #Importa el .py encargado de verificar la conexion a internet
-import RPi.GPIO as gp #Importa biblioteca para el uso de puertos GPIO
+#import RPi.GPIO as gp #Importa biblioteca para el uso de puertos GPIO
 
->>>>>>> 866568cfdcd20ce0bb36978a75be8f930b2e88d3
 import simplejson
 import json
 
 '''--------------------------------------------------------------------------
                     Variables globales
  ----------------------------------------------------------------------------'''
-global arduinoSerial, NUSUARIOS, DEBUG, PUERTO, PUERTOSERIAL, HOST
+global arduinoSerial, NUSUARIOS, DEBUG, PUERTO, PUERTOSERIAL, HOST, LISTADEPARTIDAS
 
 
 '''--------------------------------------------------------------------------
                     Configuracion de XML y Json
  ----------------------------------------------------------------------------'''
 def loadXMLParameters():
-    global DEBUG,PUERTO, NUSUARIOS, PUERTOSERIAL
+    global DEBUG,PUERTO, NUSUARIOS, PUERTOSERIAL, arduinoSerial,LISTADEPARTIDAS
+    LISTADEPARTIDAS =[]
     ruta=os.getcwd()
     rutaFinal=str(ruta)+"/configs.xml"
     xmlDocParametrosIni = minidom.parse(rutaFinal)
@@ -52,8 +51,8 @@ def loadXMLParameters():
         DEBUG = False
 
 
-def putJson(filename, n,s,x,y):
-        with open(filename, "a") as outfile:json.dump({'numbers':n, 'strings':s, 'x':x, 'y':y}, outfile, indent=4, skipkeys=True, sort_keys=True)
+def putJson(filename, nombre, ER, intentos, fecha):
+        with open(filename, "a") as outfile:json.dump({'nombre':nombre, 'ER':ER, 'intentos':intentos, 'fecha':fecha}, outfile, indent=4, skipkeys=True, sort_keys=True)
 
 def getJson(filename):
     with open(filename) as json_file:data = json.load(json_file)
@@ -64,35 +63,37 @@ def getJson(filename):
  ----------------------------------------------------------------------------'''
 def iniControladorSerial():
     global PUERTO, PUERTOSERIAL, arduinoSerial, HOST,DEBUG,LOCAL_IP
-    gp.setmode(gp.BCM)               #Iniciar puertos GPIO
-    gp.setwarnings(False)
-    gp.setup(19,gp.OUT)              #GPIO 19 como output (Luz de inicio)
-    gp.setup(26,gp.OUT)              #GPIO 26 como output (Luz de Internet)
-    gp.output(19,False)
-    gp.output(26,False)
-    
+    #gp.setmode(gp.BCM)               #Iniciar puertos GPIO
+    #gp.setwarnings(False)
+    #gp.setup(19,gp.OUT)              #GPIO 19 como output (Luz de inicio)
+    #gp.setup(26,gp.OUT)              #GPIO 26 como output (Luz de Internet)
+    #gp.output(19,False)
+    #gp.output(26,False)
+
+
     try:
+
         arduinoSerial = serial.Serial(PUERTOSERIAL, 9600)
         if(DEBUG == True): 
-            print("-Initializing-")
+            print("-Initializing serial comunication-")
     except:
-        if(load_DEBUG == "true"): 
+        if(DEBUG == True):
             print("Could not find serial port" + str(PUERTOSERIAL))
 
-    gp.output(19,True)
+    #gp.output(19,True)
     network = ichecker.checkNetwork() #Verificar si hay conexion a internet
     LOCAL_IP = ichecker.getLocalIP()
     if(network == False):
         enviarPorSerial("nonet")
         for i in range(0,5):
-            gp.output(26,True)
+            #gp.output(26,True)
+            #time.sleep(0.5)
+            #gp.output(26,False)
             time.sleep(0.5)
-            gp.output(26,False)
-            time.sleep(0.5)
-        gp.cleanup()
+        #gp.cleanup()
         print("Could not set up server")
     elif(network == True):
-        gp.output(26,True)
+        #gp.output(26,True)
         enviarPorSerial("init")
         while(True):
             txt= arduinoSerial.readline()
@@ -174,6 +175,31 @@ def listen():
 '''--------------------------------------------------------------------------
                     thread para cada cliente
  ----------------------------------------------------------------------------'''
+def verificarComando(command, conn):
+    global arduinoSerial, LISTADEPARTIDAS
+    resp=True
+    ans = command.split("#")
+    if(ans[0]=="crear"): #crear#nombre#ER#fecha#intentos#
+        timenow= str(datetime.datetime.now().day)+"/"+str(datetime.datetime.now().month)+"/"+str(datetime.datetime.now().year)
+        LISTADEPARTIDAS.append([ans[1],ans[2],timenow,"0"])
+        enviarPorSerial("Partida creada")
+        conn.send("Partida creada")
+        print("Partida: "+ans[1]+" creada correctamente")
+        resp=False
+
+    if(ans[0]=="verp"):#pidio partidas
+        text=""
+        for i in LISTADEPARTIDAS:
+            text = text+str(i)+"%"
+        conn.send(text)
+        enviarPorSerial("Alguien quiere jugar")
+        resp=False
+
+    if(ans[0]=="jugar"):#
+        resp=False
+        enviarPorSerial("Alguien juega")
+    return resp
+
 def handleClient(conn,addr):
     global NUSUARIOS,arduinoSerial
     #conn.send("*Connected*\n")
@@ -193,52 +219,22 @@ def handleClient(conn,addr):
                     conn.close()
                     kill = True
                     break
-                message = "Received: " + data[0] + '\n'
-                conn.send(message)
-                arduinoSerial.write(data[0])
-                if(DEBUG== True):
-                    print("mensaje recibido: "+data[0]+".   de :"+str(addr[0]))
+                else:
+                    if(data[0] != ""):
+                        if(verificarComando(data[0], conn)):
+                            message = "Received: " + data[0] + '\n'
+                            conn.send(message)
+                            arduinoSerial.write(data[0])
+                            if(DEBUG== True):
+                                print("mensaje recibido: "+data[0]+".   de :"+str(addr[0]))
         except:
             pass
     if(kill == True):
         print("Kill Program")
         server.close()
-        os._exit(0
+        os._exit(0)
     NUSUARIOS-=1
 
+
 loadXMLParameters()
-<<<<<<< HEAD
-#iniControladorSerial()
-#setupServer()
-#listen()
-
-
-
-'''
-ruta=os.getcwd()
-rutaFinal=str(ruta)+"/configs.xml"
-doc = minidom.parse(rutaFinal)
-
-XMLvalues='a'
-
-root = doc.createElement("User")
-#root.setAttribute( "id", 'myIdvalue' )
-#root.setAttribute( "email", 'blabla@bblabla.com' )
-
-doc.appendChild(root)
-
-for value in XMLvalues:
-    # Create Element
-    tempChild = doc.createElement(value)
-    root.appendChild(tempChild)
-
-# Write Text
-nodeText = doc.createTextNode( XMLvalues[value].strip() )
-tempChild.appendChild(nodeText)
-
-doc.writexml( open('data.xml', 'w'),indent="  ",addindent="  ",newl='\n')
-
-doc.unlink()'''
-=======
 iniControladorSerial()
->>>>>>> 866568cfdcd20ce0bb36978a75be8f930b2e88d3

@@ -1,12 +1,6 @@
 <root>
-<<<<<<< HEAD
-	<DEBUG value="true" />
-    <PUERTO value="4558" />
-    <PUERTOSERIAL value="/dev/ttyACM5"/>
-=======
     <DEBUG value="true" />
-    <PUERTO value="4558" />
-    <PUERTOSERIAL value="/dev/ttyAMA0"/>
+    <PUERTO value="9096" />
+    <PUERTOSERIAL value="/dev/ttyACM4"/>
     <NUSUARIOS value="0"/>
->>>>>>> 866568cfdcd20ce0bb36978a75be8f930b2e88d3
 </root>

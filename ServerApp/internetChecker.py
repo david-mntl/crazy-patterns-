@@ -1,8 +1,8 @@
-import RPi.GPIO as gp
+#import RPi.GPIO as gp
 import time
 import socket
 import urllib2
-import picamera
+#import picamera
 
 def checkNetwork():
     try:
@@ -21,29 +21,29 @@ def getLocalIP():
     return s.getsockname()[0]
 
 def startUp():
-    gp.setmode(gp.BCM)
-    gp.setup(19,gp.OUT)
-    gp.setup(26,gp.OUT)
+    # gp.setmode(gp.BCM)
+    #gp.setup(19,gp.OUT)
+    #gp.setup(26,gp.OUT)
     
     print("Initialized")
     if(checkNetwork() == True):
         print("Got network connection")
-        gp.output(19,True)
+       # gp.output(19,True)
     else:
         print("No network")
     
     
     itera=0
     while itera < 5:
-        gp.output(26,True)
+        #gp.output(26,True)
         time.sleep(1)
-        gp.output(26,False)
+       # gp.output(26,False)
         time.sleep(1)
         itera+=1
         print(itera)
         
     print("--Finished execution--")
     print(getLocalIP())
-    gp.cleanup()
+    #gp.cleanup()
 
 #startUp()
