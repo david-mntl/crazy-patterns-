@@ -368,7 +368,8 @@ void playConnection(){
           break;
         }
         else{
-          showMessage("Partidas",received.c_str(),"","","",GREEN);
+          showPartidas("Crazy P.",received.c_str(),"","","",GREEN); //MUESTRA EL CUADRO DE MENSAJE EN PANTALLA
+          beep(50);
         }
     }
     delay(50);
@@ -411,7 +412,7 @@ void initPlayConnection(){
 }
 void verifyConnection(){
   String received;
-  byte i = 20;
+  byte i = 5;
   byte k = 0;
   byte outstatus = 0;
   Tft.drawString("Connecting",6,35,2,WHITE);
@@ -513,4 +514,13 @@ void showMessageBottom(const char* title,const char* line1,const char* line2,con
   Tft.drawString((char*)line2,55,245,1,BLACK);
   Tft.drawString((char*)line3,55,260,1,BLACK);
   Tft.drawString((char*)error,134,277,1,color);
+}
+
+void showPartidas(const char* title,const char* line1,const char* line2,const char* line3,const char* error,unsigned int color){
+  Tft.fillRectangle(50, 110, 140,75,WHITE);
+  Tft.drawString((char*)title,55,115,2,color);
+  Tft.drawString((char*)line1,55,135,1,BLACK);
+  Tft.drawString((char*)line2,55,145,1,BLACK);
+  Tft.drawString((char*)line3,55,160,1,BLACK);
+  Tft.drawString((char*)error,134,177,1,color);
 }

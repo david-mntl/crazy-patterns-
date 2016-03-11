@@ -179,25 +179,30 @@ def verificarComando(command, conn):
     global arduinoSerial, LISTADEPARTIDAS
     resp=True
     ans = command.split("#")
-    if(ans[0]=="crear"): #crear#nombre#ER#fecha#intentos#
+    if(ans[0]=="crear"): # crear#nombre#ER#L#       desde la app
+        # crear#nombre#ER#fecha#intentos#L1#L2#L3#L4#L5     almacenado en la app
         timenow= str(datetime.datetime.now().day)+"/"+str(datetime.datetime.now().month)+"/"+str(datetime.datetime.now().year)
-        LISTADEPARTIDAS.append([ans[1],ans[2],timenow,"0"])
+        LISTADEPARTIDAS.append([ans[1],ans[2],timenow,"0"],ans[5],ans[6],ans[7],ans[8],ans[9])
+        #LISTADEPARTIDAS = [nombre, ER, fecha, intentos, L1,L2,L3,L4,L5]
         enviarPorSerial("Partida creada")
         conn.send("Partida creada")
         print("Partida: "+ans[1]+" creada correctamente")
         resp=False
 
-    if(ans[0]=="verp"):#pidio partidas
+    if(ans[0]=="verp"):# name#fecha#intentos%name2#fecha2#intentos2
         text=""
         for i in LISTADEPARTIDAS:
-            text = text+str(i)+"%"
+            text = text+str(i[0])+str(i[2])+str(i[3])+"%"
         conn.send(text)
         enviarPorSerial("Alguien quiere jugar")
         resp=False
 
-    if(ans[0]=="jugar"):#
+    if(ans[0]=="jugar"):#jugar#name
+        for i in LISTADEPARTIDAS:
+            if(LISTADEPARTIDAS[0]==ans[1]):
+                enviarPorSerial("Jugando")
+                conn.send(LISTADEPARTIDAS[1]+"#"+LISTADEPARTIDAS[4]+"#"+LISTADEPARTIDAS[5]+"#"+LISTADEPARTIDAS[6]+"#"+LISTADEPARTIDAS[7]+"#"+LISTADEPARTIDAS[8]+"#")
         resp=False
-        enviarPorSerial("Alguien juega")
     return resp
 
 def handleClient(conn,addr):
