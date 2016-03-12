@@ -21,14 +21,14 @@ import json
 '''--------------------------------------------------------------------------
                     Variables globales
  ----------------------------------------------------------------------------'''
-global arduinoSerial, NUSUARIOS, DEBUG, PUERTO, PUERTOSERIAL, HOST, LISTADEPARTIDAS, LISTADEPARTIDASGANADAS
+global arduinoSerial, NUSUARIOS, DEBUG, PUERTO, PUERTOSERIAL, HOST, LISTADEPARTIDAS, LISTADEPARTIDASGANADAS, LISTADEPARTIDASRETO
 
 
 '''--------------------------------------------------------------------------
                     Configuracion de XML y Json
  ----------------------------------------------------------------------------'''
 def loadXMLParameters():
-    global DEBUG,PUERTO, NUSUARIOS, PUERTOSERIAL, arduinoSerial,LISTADEPARTIDAS,LISTADEPARTIDASGANADAS
+    global DEBUG,PUERTO, NUSUARIOS, PUERTOSERIAL, arduinoSerial,LISTADEPARTIDAS,LISTADEPARTIDASGANADAS, LISTADEPARTIDASRETO
     LISTADEPARTIDAS =[]
     LISTADEPARTIDASGANADAS =[]
     ruta=os.getcwd()
@@ -39,7 +39,15 @@ def loadXMLParameters():
     pDebug = xmlDocParametrosIni.getElementsByTagName('DEBUG')
     pPuerto = xmlDocParametrosIni.getElementsByTagName('PUERTO')
     pPuertoSerial = xmlDocParametrosIni.getElementsByTagName('PUERTOSERIAL')
-
+ #   pReto1 = xmlDocParametrosIni.getElementsByTagName('Reto1')
+ #   pReto2 = xmlDocParametrosIni.getElementsByTagName('Reto2')
+ #   pReto3 = xmlDocParametrosIni.getElementsByTagName('Reto3')
+ #   pReto4 = xmlDocParametrosIni.getElementsByTagName('Reto4')
+ #   pReto1 = pReto1[0].attibutes['value'].value
+ #   pReto2 = pReto2[0].attibutes['value'].value
+ #   pReto3 = pReto3[0].attibutes['value'].value
+ #   pReto4 = pReto4[0].attibutes['value'].value
+  #  LISTADEPARTIDASRETO=[[pReto1,0,"nadie"],[pReto2,0,"nadie"],[pReto3,0,"nadie"],[pReto4,0,"nadie"]]
     load_DEBUG=pDebug[0].attributes['value'].value
     PUERTOSERIAL = str(pPuertoSerial[0].attributes['value'].value)
     PUERTO=int(pPuerto[0].attributes['value'].value)
@@ -63,7 +71,7 @@ def getJson(filename):
                     Configuracion inicial del socket servidor
  ----------------------------------------------------------------------------'''
 def iniControladorSerial():
-    global PUERTO, PUERTOSERIAL, arduinoSerial, HOST,DEBUG,LOCAL_IP
+    global PUERTO, PUERTOSERIAL, HOST,DEBUG,LOCAL_IP #arduinoSerial
     #gp.setmode(gp.BCM)               #Iniciar puertos GPIO
     #gp.setwarnings(False)
     #gp.setup(19,gp.OUT)              #GPIO 19 como output (Luz de inicio)
@@ -85,7 +93,7 @@ def iniControladorSerial():
     network = ichecker.checkNetwork() #Verificar si hay conexion a internet
     LOCAL_IP = ichecker.getLocalIP()
     if(network == False):
-        #enviarPorSerial("nonet")
+        enviarPorSerial("nonet")
         for i in range(0,5):
             #gp.output(26,True)
             #time.sleep(0.5)
@@ -95,7 +103,7 @@ def iniControladorSerial():
         print("Could not set up server")
     elif(network == True):
         #gp.output(26,True)
-        #enviarPorSerial("init")
+        enviarPorSerial("init")
         while(True):
             txt= arduinoSerial.readline()
             txt=txt.split('\n')
@@ -126,7 +134,7 @@ def iniControladorSerial():
 
 def enviarPorSerial(pData):
     global arduinoSerial
-    arduinoSerial.write(pData)
+    #arduinoSerial.write(pData)
 
 
 '''--------------------------------------------------------------------------
@@ -160,9 +168,7 @@ def listen():
         #print("Waiting...")
         try:
             conn, addr = server.accept()
-            #print("1")
             NUSUARIOS+=1
-            #print("2")
             if(DEBUG== True):
                 print("**User Connected**" + " User:" + str(NUSUARIOS))
             b= Thread(target=handleClient, args=(conn,addr))
@@ -171,7 +177,7 @@ def listen():
         except:
             print("except")
             #enviarPorSerial("failed");
-            
+
     server.close()
     if(DEBUG== True):
         print("- Server Closed -")
@@ -180,8 +186,7 @@ def listen():
                     thread para cada cliente
  ----------------------------------------------------------------------------'''
 def verificarComando(command, conn):
-    global LISTADEPARTIDAS,LISTADEPARTIDASGANADAS
-    #global arduinoSerial
+    global LISTADEPARTIDAS,LISTADEPARTIDASGANADAS, arduinoSerial
     resp=True
     commSplit = command.split("#")
     if(commSplit[0]=="crear"): # crear#nombre#ER#L#       desde la app
@@ -189,12 +194,13 @@ def verificarComando(command, conn):
         timenow= str(datetime.datetime.now().day)+"/"+str(datetime.datetime.now().month)+"/"+str(datetime.datetime.now().year)
         LISTADEPARTIDAS.append([str(commSplit[1]),str(commSplit[2]),timenow,"0",str(commSplit[5]),str(commSplit[6]),str(commSplit[7]),str(commSplit[8]),str(commSplit[9]),"nadie"])
         #LISTADEPARTIDAS = [nombre, ER, fecha, intentos, L1,L2,L3,L4,L5,Ganador]
-        #enviarPorSerial("Partida creada")
+        enviarPorSerial("'"+str(commSplit[1])+"' creada")
         conn.send("Partida creada")
         print("Partida: '"+commSplit[1]+"' creada correctamente")
         resp=False
 
-    if(commSplit[0]=="verp"):# name#fecha#intentos%name2#fecha2#intentos2
+    if(commSplit[0]=="verp"):   #  verp#
+                                #  name#fecha#intentos%name2#fecha2#intentos2
         texttotal=""
         for juego in range(0,len(LISTADEPARTIDAS)):
             text=""
@@ -203,18 +209,31 @@ def verificarComando(command, conn):
             texttotal+=text+"%";
         texttotal+="\n"
         conn.send(texttotal)
-        #enviarPorSerial("Alguien quiere jugar")
+        enviarPorSerial("Mostrando partidas")
+        resp=False
+
+    if(commSplit[0]=="verpreto"):   #  verpretos#
+                                    #LISTADEPARTIDASRETO = [[ER,intentos,ganador(nadie default)],  ... ,5 campos]
+        texttotal=""
+        for juego in range(0,len(LISTADEPARTIDASRETO)):
+            text=""
+            for j in range(0,len(LISTADEPARTIDASRETO[juego])):
+                text += str(LISTADEPARTIDASRETO[juego][j])+"#"
+            texttotal+=text+"%";
+        texttotal+="\n"
+        conn.send(texttotal)
+        enviarPorSerial("Mostrando retos")
         resp=False
 
     if(commSplit[0]=="jugar"):# jugar#name           es lo que recibe
         #   ER#ExpresionRegular#L1#L2#L3#L4#L4#ganador      es lo que responde a la app
         #LISTADEPARTIDAS = [nombre, ER, fecha, intentos, L1,L2,L3,L4,L5,ganador]
-
         for j in range(0,len(LISTADEPARTIDAS)):
             if(str(LISTADEPARTIDAS[j][0]) == str(commSplit[1])):    #Para encontrar la partida con el nombre buscado
                 comandoResp ="ER#"+str(LISTADEPARTIDAS[j][1])+"#"+str(LISTADEPARTIDAS[j][4])+"#"+str(LISTADEPARTIDAS[j][5])+"#"+str(LISTADEPARTIDAS[j][6])+"#"+str(LISTADEPARTIDAS[j][7])+"#"+(LISTADEPARTIDAS[j][8])+"#"+(LISTADEPARTIDAS[j][9])+"#\n"
                 conn.send(comandoResp)
-        resp=False
+                enviarPorSerial("Jugando: "+str(LISTADEPARTIDAS[j][0]))
+                resp=False
 
     if(commSplit[0]=="perdio"):#  perdio#nombrePartida#
         #LISTADEPARTIDAS = [nombre, ER, fecha, intentos, L1,L2,L3,L4,L5,ganador]
@@ -224,25 +243,53 @@ def verificarComando(command, conn):
                 cont= int(cont)
                 cont+=1
                 LISTADEPARTIDAS[j][3]=str(cont)
+                enviarPorSerial("perdio")
+                #enviarPorSerial("Perdio en:"+str(LISTADEPARTIDAS[j][0]))
+                resp=False
 
     if(commSplit[0]=="gano"):#  gano#nombrePartida#nombrejugador
         #LISTADEPARTIDAS = [nombre, ER, fecha, intentos, L1,L2,L3,L4,L5,ganador]
-        print("1")
         for j in range(0,len(LISTADEPARTIDAS)):
-            print("2")
             if(str(LISTADEPARTIDAS[j][0]) == str(commSplit[1])):    #Para encontrar la partida con el nombre buscado
-                print("3")
                 LISTADEPARTIDASGANADAS.append(LISTADEPARTIDAS[j])   #agregamos a la lista de ganadas
-                print("4")
+                enviarPorSerial("gano")
+                #enviarPorSerial("Se gano: "+str(LISTADEPARTIDAS[j][0]))
                 LISTADEPARTIDAS.remove(LISTADEPARTIDAS[j])
-                print("5")
-        resp=False
+                #conn.send("Partida: '"+str(LISTADEPARTIDAS[j][0])+"' ganada")
+                resp=False
 
+    if(commSplit[0]=="stats"):  #  stats                                        pide las ganadas
+                                #  name#fecha#intentos#ganador%...n2.....       retorna las ganadas...
+        ER="regex#"
+        dates="date#"
+        attemps="tries#"
+        winners="winner#"
+        for juego in range(0,len(LISTADEPARTIDASGANADAS)):
+
+            ER += str(LISTADEPARTIDASGANADAS[juego][1])+"#"
+            dates += str(LISTADEPARTIDASGANADAS[juego][2])+"#"
+            attemps += str(LISTADEPARTIDASGANADAS[juego][3])+"#"
+            winners += str(LISTADEPARTIDASGANADAS[juego][9])+"#"
+        ER+="\n"
+        dates+="\n"
+        attemps+="\n"
+        winners+="\n"
+        print("-------------")
+        print(ER)
+        print(dates)
+        print(winners)
+        print(attemps)
+        conn.send(ER)
+        conn.send(dates)
+        conn.send(attemps)
+        conn.send(winners)
+        enviarPorSerial("Mostrando ganadas")
+        resp=False
 
     return resp
 
 def handleClient(conn,addr):
-    global NUSUARIOS#,arduinoSerial
+    global NUSUARIOS, arduinoSerial
     conn.send("gotconnected\n")
     kill = False
     while True:
@@ -265,9 +312,9 @@ def handleClient(conn,addr):
                         if(verificarComando(data[0], conn)):
                             message = "Received: " + data[0] + '\n'
                             conn.send(message)
-                            arduinoSerial.write(data[0])
+                            #arduinoSerial.write(data[0])
                             if(DEBUG== True):
-                                print("mensaje recibido: "+data[0]+".   de :"+str(addr[0]))
+                                print("comando desconocido: "+data[0]+".   de :"+str(addr[0]))
         except:
             pass
     if(kill == True):
