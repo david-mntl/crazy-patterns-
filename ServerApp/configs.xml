@@ -1,6 +1,6 @@
 <root>
     <DEBUG value="true" />
-    <PUERTO value="9054" />
+    <PUERTO value="9055" />
     <PUERTOSERIAL value="/dev/ttyACM0"/>
     <NUSUARIOS value="0"/>
 </root>
