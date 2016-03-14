@@ -1,6 +1,10 @@
 <root>
     <DEBUG value="true" />
-    <PUERTO value="4558" />
-    <PUERTOSERIAL value="/dev/ttyAMA0"/>
+    <PUERTO value="9041" />
+    <PUERTOSERIAL value="/dev/ttyACM2"/>
     <NUSUARIOS value="0"/>
+    <Reto1 value="A"/>
+    <Reto2 value="B"/>
+    <Reto3 value="C"/>
+    <Reto4 value="D"/>
 </root>

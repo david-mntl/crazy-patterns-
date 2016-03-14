@@ -367,8 +367,17 @@ void playConnection(){
         if(received == "exit"){
           break;
         }
+        else if(received == "gano"){
+          showPartidas("Crazy P.",received.c_str(),"","","",GREEN); //MUESTRA EL CUADRO DE MENSAJE EN PANTALLA
+          winLightShow();
+        }
+        else if(received == "perdio"){
+          showPartidas("Crazy P.",received.c_str(),"","","",GREEN); //MUESTRA EL CUADRO DE MENSAJE EN PANTALLA
+          loseLightShow();
+        }
         else{
-          showMessage("Message",received.c_str(),"","","",GREEN);
+          showPartidas("Crazy P.",received.c_str(),"","","",GREEN); //MUESTRA EL CUADRO DE MENSAJE EN PANTALLA
+          beep(50);
         }
     }
     delay(50);
@@ -411,7 +420,7 @@ void initPlayConnection(){
 }
 void verifyConnection(){
   String received;
-  byte i = 20;
+  byte i = 5;
   byte k = 0;
   byte outstatus = 0;
   Tft.drawString("Connecting",6,35,2,WHITE);
@@ -460,12 +469,13 @@ void verifyConnection(){
 //MISCELANEUS METHODS
 //***********************************
 void beep(byte ms){
-  digitalWrite(2,HIGH);
+  //digitalWrite(2,HIGH);
   delay(ms);
-  digitalWrite(2,LOW);
+  //digitalWrite(2,LOW);
   delay(ms);
 }
-void welcomeLightShow(){
+
+void welcomeLightShow(){//(G,R,B)
   for(int i=0;i<3;i++){
     pixels.setPixelColor(i-1, pixels.Color(0,0,0));
     pixels.setPixelColor(5-(i), pixels.Color(0,0,0));
@@ -498,6 +508,67 @@ void welcomeLightShow(){
     pixels.show();
   }
 }
+
+void winLightShow(){//(G,R,B)
+  
+  short speedled=200;
+  for(int task=0;task<235;task=task+10){
+    for(int i=0;i<3;i++){
+      pixels.setPixelColor(i-1, pixels.Color(0,0,0));
+      pixels.setPixelColor(5-(i), pixels.Color(0,0,0));
+      pixels.show();
+      pixels.setPixelColor(i, pixels.Color(task,46,70));
+      pixels.setPixelColor(5-(i+1), pixels.Color(task,46,70));
+      pixels.show();  
+      beep(50);
+      delay(speedled);
+    }for(int i=0;i<NUMPIXELS;i++){
+      pixels.setPixelColor(i, pixels.Color(0,0,0));
+      pixels.show();
+    }
+    speedled=speedled-speedled*0.15;
+  }
+  for(int i=0;i<5;i++){
+      pixels.setPixelColor(i, pixels.Color(235,46,70));
+      pixels.show();
+      beep(300);
+  }
+  delay(500);
+  for(int i=0;i<NUMPIXELS;i++){
+      pixels.setPixelColor(i, pixels.Color(0,0,0));
+      pixels.show();
+    }
+}
+
+
+void loseLightShow(){//(G,R,B)  
+  short j=3;
+  short speedled=200;
+  for(int i=250;i>=0;i=i-10){
+    pixels.setPixelColor(i, pixels.Color(0,0,0));
+    pixels.setPixelColor(j, pixels.Color(0,0,0));
+    pixels.show();
+    pixels.setPixelColor(i, pixels.Color(i,255,0));
+    pixels.setPixelColor(j, pixels.Color(i,255,0));
+    pixels.show();
+    beep(50);
+    delay(speedled);
+    speedled=speedled-speedled*0.25;
+    j=j-1;
+  }
+  
+  for(int i=5;i>0;i=i-1){
+      pixels.setPixelColor(i, pixels.Color(0,255,0));
+      pixels.show();
+      beep(300);
+  }
+  
+  for(int i=0;i<5;i++){
+    pixels.setPixelColor(i, pixels.Color(0,0,0));
+    pixels.show();
+  }
+}
+
 void showMessage(const char* title,const char* line1,const char* line2,const char* line3,const char* error,unsigned int color){
   Tft.fillRectangle(50, 110, 140,75,WHITE);
   Tft.drawString((char*)title,55,115,2,color);
@@ -513,4 +584,13 @@ void showMessageBottom(const char* title,const char* line1,const char* line2,con
   Tft.drawString((char*)line2,55,245,1,BLACK);
   Tft.drawString((char*)line3,55,260,1,BLACK);
   Tft.drawString((char*)error,134,277,1,color);
+}
+
+void showPartidas(const char* title,const char* line1,const char* line2,const char* line3,const char* error,unsigned int color){
+  Tft.fillRectangle(50, 110, 140,75,WHITE);
+  Tft.drawString((char*)title,55,115,2,color);
+  Tft.drawString((char*)line1,55,135,1,BLACK);
+  Tft.drawString((char*)line2,55,145,1,BLACK);
+  Tft.drawString((char*)line3,55,160,1,BLACK);
+  Tft.drawString((char*)error,134,177,1,color);
 }
