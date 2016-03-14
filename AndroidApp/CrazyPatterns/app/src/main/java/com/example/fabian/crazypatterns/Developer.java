@@ -137,9 +137,6 @@ public class Developer extends ActionBarActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
         }
-        /*void sendMessage(String msg){
-            socketserver.sendMessage(msg);
-        }*/
     }
     private class AsyncSocketListener extends AsyncTask<String, String, String>{
         @Override

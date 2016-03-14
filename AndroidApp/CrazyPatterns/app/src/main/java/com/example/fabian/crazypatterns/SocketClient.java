@@ -16,6 +16,7 @@ public class SocketClient implements Runnable {
     public PrintWriter mBufferOut;
     public BufferedReader mBufferIn;
     String currentline = "";
+    boolean connected = false;
 
 
     public SocketClient(String pAdress, int pPort) {
@@ -26,14 +27,18 @@ public class SocketClient implements Runnable {
             try {
                 mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
                 mBufferIn = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                connected = true;
             }catch (Exception e) {
-                Log.e("TCP", "S: Error", e);
+                return;
             }
 
         }catch (Exception e) {
-            Log.e("TCP", "C: Error", e);
-
+            return;
         }
+    }
+
+    public boolean verifyConnection(){
+        return connected;
     }
 
     public void sendMessage(String message) {
@@ -44,30 +49,21 @@ public class SocketClient implements Runnable {
     }
     public String getMessage(){
         try{
-            String line = mBufferIn.readLine();
-            return line;
+            if(mBufferIn != null) {
+                String line = mBufferIn.readLine();
+                return line;
+            }
+            return "";
+        }
+        catch (java.net.SocketException c){
+            Log.e("TCP Client" ,"Socket Close Successfully");
+            return "";
         }
         catch(IOException e){
-            return e.getMessage().toString();
+            Log.e("TCP Client", "Error" , e);
+            return "";
         }
     }
-    /*public String getMessage(){
-        try {
-            String line;
-            while (true) {
-                line = mBufferIn.readLine();
-                if(line != null) {
-                    currentline = line;
-                    break;
-                }
-            }
-            currentline = mBufferIn.readLine();
-        } catch (IOException e) {
-            currentline = e.toString();
-
-        }
-        return currentline;
-    }*/
 
     public void closeConnection(){
         try {
@@ -76,7 +72,14 @@ public class SocketClient implements Runnable {
             Log.e("TCP Client", "Error");
         }
     }
-
+    public boolean isConnectionAvailable(){
+        if(mBufferOut == null && mBufferIn == null){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 
 
     @Override

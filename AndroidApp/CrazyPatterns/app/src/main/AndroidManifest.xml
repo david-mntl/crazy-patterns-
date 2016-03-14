@@ -14,18 +14,24 @@
         tools:replace="android:icon">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Developer" />
-        <activity android:name=".crearActivity" />
-        <activity android:name=".playActivity" />
-        <activity android:name=".statsActivity" />
-        <activity android:name=".profileActivity"></activity>
+        <activity android:name=".Developer"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".crearActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".playActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".statsActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".profileActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

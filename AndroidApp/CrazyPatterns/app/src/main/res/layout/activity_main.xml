@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:background="#191a42">
+            android:background="#b72d3b">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -33,19 +33,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Patterns"
-                android:id="@+id/textView5"
+                android:id="@+id/titletxt2"
                 android:textColor="#ffffff"
                 android:textSize="50dp"
                 android:layout_below="@+id/titletxt"
                 android:layout_centerHorizontal="true" />
 
             <GridLayout
-                android:layout_width="210dp"
+                android:layout_width="215dp"
                 android:layout_height="210dp"
-                android:layout_marginTop="90dp"
-                android:background="#373b63"
-                android:layout_below="@+id/textView5"
-                android:layout_centerHorizontal="true">
+                android:layout_marginTop="70dp"
+                android:background="#b94954"
+                android:layout_below="@+id/titletxt2"
+                android:layout_centerHorizontal="true"
+                android:visibility="invisible"
+                android:id="@+id/buttonsLayout">
 
                 <ImageButton
                     android:layout_width="wrap_content"
@@ -97,6 +99,118 @@
                     android:layout_column="3"
                     android:background="@drawable/profile" />
             </GridLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/titletxt2"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/configLayout"
+                android:visibility="visible">
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Welcome"
+                    android:id="@+id/textView5"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="#ffffff"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Please enter Host Port and IP"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="#ffffff"
+                    android:textSize="18dp"
+                    android:id="@+id/txtView6" />
+
+                <Space
+                    android:layout_width="20px"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IP"
+                    android:id="@+id/textView10"
+                    android:textColor="#ffffff"
+                    android:layout_gravity="center_horizontal" />
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center_horizontal">
+
+                    <EditText
+                        android:layout_width="250dp"
+                        android:layout_height="35dp"
+                        android:id="@+id/iptxt"
+                        android:background="#ffffff"
+                        android:hint="xxx.xxx.xxx.xxx"
+                        android:layout_below="@+id/textView9"
+                        android:layout_centerHorizontal="true"
+                        android:digits="0123456789."
+                        android:layout_row="0"
+                        android:layout_column="2"
+                        android:inputType="numberDecimal"
+                        android:layout_gravity="center_horizontal" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_horizontal" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PORT"
+                        android:id="@+id/textView11"
+                        android:textColor="#ffffff"
+                        android:layout_gravity="center_horizontal" />
+
+                    <EditText
+                        android:layout_width="250dp"
+                        android:layout_height="35dp"
+                        android:id="@+id/porttxt"
+                        android:background="#ffffff"
+                        android:layout_marginTop="5dp"
+                        android:hint="xxxx"
+                        android:layout_below="@+id/iptxt"
+                        android:layout_alignLeft="@+id/iptxt"
+                        android:layout_alignStart="@+id/iptxt"
+                        android:layout_row="1"
+                        android:layout_column="2"
+                        android:inputType="number"
+                        android:layout_gravity="center_horizontal" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="20px"
+                    android:layout_height="30dp" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:text="Go"
+                    android:id="@+id/bAccept"
+                    android:layout_below="@+id/porttxt"
+                    android:layout_alignLeft="@+id/porttxt"
+                    android:layout_alignStart="@+id/porttxt"
+                    android:layout_marginTop="0dp"
+                    android:layout_row="0"
+                    android:layout_column="3"
+                    android:layout_gravity="center_horizontal" />
+
+            </LinearLayout>
         </RelativeLayout>
     </FrameLayout>
 

@@ -8,15 +8,15 @@ import socket
 from _ast import arguments
 from threading import Thread
 import os
-import serial
+#import serial
 import time
 import datetime
 from xml.dom import minidom
 import internetChecker as ichecker #Importa el .py encargado de verificar la conexion a internet
 #import RPi.GPIO as gp #Importa biblioteca para el uso de puertos GPIO
 
-import simplejson
-import json
+#import simplejson
+#import json
 
 '''--------------------------------------------------------------------------
                     Variables globales
@@ -251,7 +251,9 @@ def verificarComando(command, conn):
         #LISTADEPARTIDAS = [nombre, ER, fecha, intentos, L1,L2,L3,L4,L5,ganador]
         for j in range(0,len(LISTADEPARTIDAS)):
             if(str(LISTADEPARTIDAS[j][0]) == str(commSplit[1])):    #Para encontrar la partida con el nombre buscado
-                LISTADEPARTIDASGANADAS.append(LISTADEPARTIDAS[j])   #agregamos a la lista de ganadas
+                INFO_PARTIDA = LISTADEPARTIDAS[j]
+                INFO_PARTIDA[9] = commSplit[2]
+                LISTADEPARTIDASGANADAS.append(INFO_PARTIDA)   #agregamos a la lista de ganadas
                 enviarPorSerial("gano")
                 #enviarPorSerial("Se gano: "+str(LISTADEPARTIDAS[j][0]))
                 LISTADEPARTIDAS.remove(LISTADEPARTIDAS[j])
@@ -261,26 +263,21 @@ def verificarComando(command, conn):
     if(commSplit[0]=="stats"):  #  stats                                        pide las ganadas
                                 #  name#fecha#intentos#ganador%...n2.....       retorna las ganadas...
         ER="regex#"
-        dates="date#"
-        attemps="tries#"
+        attemps="inten#"
         winners="winner#"
         for juego in range(0,len(LISTADEPARTIDASGANADAS)):
-
             ER += str(LISTADEPARTIDASGANADAS[juego][1])+"#"
-            dates += str(LISTADEPARTIDASGANADAS[juego][2])+"#"
             attemps += str(LISTADEPARTIDASGANADAS[juego][3])+"#"
             winners += str(LISTADEPARTIDASGANADAS[juego][9])+"#"
         ER+="\n"
-        dates+="\n"
         attemps+="\n"
         winners+="\n"
         print("-------------")
         print(ER)
-        print(dates)
         print(winners)
         print(attemps)
+        
         conn.send(ER)
-        conn.send(dates)
         conn.send(attemps)
         conn.send(winners)
         enviarPorSerial("Mostrando ganadas")
